@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Sun, Moon, Globe, Menu, X } from 'lucide-react';
+import { Search, Sun, Moon, Globe, Menu, X, Settings, User, UserCog } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import MarketTicker from './MarketTicker';
 
@@ -55,6 +55,12 @@ const Header: React.FC = () => {
     { name: 'Technical Support', path: '/faq?category=support' }
   ];
 
+  const settingsOptions = [
+    { name: 'Profile', path: '/profile', icon: <User className="w-4 h-4" /> },
+    { name: 'Profile Settings', path: '/profile-settings', icon: <UserCog className="w-4 h-4" /> },
+    { name: 'Account Settings', path: '/account-settings', icon: <Settings className="w-4 h-4" /> }
+  ];
+
   const handleDropdownClick = (dropdownName: string) => {
     setActiveDropdown(activeDropdown === dropdownName ? null : dropdownName);
   };
@@ -77,7 +83,7 @@ const Header: React.FC = () => {
     };
   }, [activeDropdown]);
 
-  const DropdownMenu: React.FC<{ options: any[], isVisible: boolean }> = ({ options, isVisible }) => (
+  const DropdownMenu: React.FC<{ options: any[], isVisible: boolean, showIcons?: boolean }> = ({ options, isVisible, showIcons = false }) => (
     <AnimatePresence>
       {isVisible && (
         <motion.div
@@ -96,13 +102,16 @@ const Header: React.FC = () => {
             <Link
               key={index}
               to={option.path}
-              className={`block px-4 py-3 transition-all duration-200 border-b last:border-b-0 cursor-pointer ${
+              className={`flex items-center px-4 py-3 transition-all duration-200 border-b last:border-b-0 cursor-pointer ${
                 isDarkMode 
                   ? 'text-white hover:bg-sky-500/30 hover:text-sky-200 border-gray-700' 
                   : 'text-gray-900 hover:bg-sky-100 hover:text-sky-700 border-gray-200'
               }`}
               onClick={handleDropdownItemClick}
             >
+              {showIcons && option.icon && (
+                <span className="mr-3">{option.icon}</span>
+              )}
               {option.name}
             </Link>
           ))}
@@ -216,6 +225,17 @@ const Header: React.FC = () => {
                 <button className="px-4 py-2 rounded-lg transition-colors duration-200 font-medium bg-sky-500 hover:bg-sky-600 text-white">
                   Sign Up
                 </button>
+                
+                {/* Settings Dropdown */}
+                <div className="relative dropdown-container">
+                  <button 
+                    className="p-2 transition-colors duration-200 text-white hover:text-sky-400"
+                    onClick={() => handleDropdownClick('settings')}
+                  >
+                    <Settings className="w-5 h-5" />
+                  </button>
+                  <DropdownMenu options={settingsOptions} isVisible={activeDropdown === 'settings'} showIcons={true} />
+                </div>
               </div>
 
               {/* Mobile Menu Button */}
@@ -249,6 +269,12 @@ const Header: React.FC = () => {
                 <div className="flex space-x-3 pt-4">
                   <button className="transition-colors duration-200 text-white hover:text-sky-400">Sign In</button>
                   <button className="px-4 py-2 rounded-lg transition-colors duration-200 bg-sky-500 hover:bg-sky-600 text-white">Sign Up</button>
+                  <button 
+                    className="p-2 transition-colors duration-200 text-white hover:text-sky-400"
+                    onClick={() => handleDropdownClick('settings')}
+                  >
+                    <Settings className="w-5 h-5" />
+                  </button>
                 </div>
               </div>
             </motion.div>
