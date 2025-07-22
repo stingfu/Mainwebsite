@@ -56,10 +56,10 @@ const Header: React.FC = () => {
   ];
 
   const settingsOptions = [
-    { name: 'Account Settings', path: '/account-settings', icon: <Settings className="w-4 h-4" /> }
+    { name: 'Account Settings', path: '/account-settings', icon: <Settings className="w-4 h-4" /> },
     { name: 'Profile', path: '/profile', icon: <User className="w-4 h-4" /> },
  ];
-..
+
   const handleDropdownClick = (dropdownName: string) => {
     setActiveDropdown(activeDropdown === dropdownName ? null : dropdownName);
   };
