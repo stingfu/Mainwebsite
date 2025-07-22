@@ -119,7 +119,7 @@ const Header: React.FC = () => {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link to="/" className="flex items-center">
-              <span className="text-2xl font-bold tracking-wider text-white">STINGFU</span>
+              <span className="text-4xl font-black tracking-wider text-white hover:text-sky-400 transition-colors duration-200">STINGFU</span>
             </Link>
 
             {/* Desktop Navigation */}
