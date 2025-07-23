@@ -57,8 +57,9 @@ const Header: React.FC = () => {
 
   const settingsOptions = [
     { name: 'Account Settings', path: '/account-settings', icon: <Settings className="w-4 h-4" /> },
-    { name: 'Profile', path: '/profile', icon: <User className="w-4 h-4" /> },
- ];
+    { name: 'Profile', path: '/profile', icon: <User className="w-4 h-4" /> }
+  ];
+
   const handleDropdownClick = (dropdownName: string) => {
     setActiveDropdown(activeDropdown === dropdownName ? null : dropdownName);
   };
@@ -228,6 +229,7 @@ const Header: React.FC = () => {
                   className="px-4 py-2 rounded-lg transition-colors duration-200 font-medium bg-sky-500 hover:bg-sky-600 text-white"
                 >
                   Sign Up
+                </Link>
 
                 {/* Settings Dropdown */}
                 <div className="relative dropdown-container">
