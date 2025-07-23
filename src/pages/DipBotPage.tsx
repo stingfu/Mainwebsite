@@ -1,171 +1,182 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { TrendingDown, Shield, Zap, BarChart3, Settings } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { useTheme } from '../contexts/ThemeContext';
 
 const DipBotPage: React.FC = () => {
-  return (
-    <div className="min-h-screen py-20 px-4">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="text-center mb-16"
-        >
-          <div className="flex justify-center mb-6">
-            <TrendingDown className="w-16 h-16 text-sky-400" />
-          </div>
-          <h1 className="text-5xl font-bold text-white mb-6">Dip Bot</h1>
-          <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-            Automatically identifies market dips and executes strategic buy orders, 
-            then sells at optimal recovery points to maximize your profits.
-          </p>
-        </motion.div>
+  const { isDarkMode } = useTheme();
+  const [formData, setFormData] = useState({
+    symbol: 'BTCUSDT',
+    exchange: 'Bybit',
+    side: 'Buy',
+    timeFrame: '1',
+    dip: '1',
+    quantity: '5000'
+  });
 
-        {/* Features Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-          {[
-            {
-              icon: <Shield className="w-8 h-8" />,
-              title: 'Smart Dip Detection',
-              description: 'Advanced algorithms identify genuine market dips vs temporary fluctuations'
-            },
-            {
-              icon: <Zap className="w-8 h-8" />,
-              title: 'Lightning Fast Execution',
-              description: 'Execute trades within milliseconds of dip detection for optimal entry points'
-            },
-            {
-              icon: <BarChart3 className="w-8 h-8" />,
-              title: 'Risk Management',
-              description: 'Built-in stop-loss and take-profit mechanisms to protect your capital'
-            }
-          ].map((feature, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: index * 0.2 }}
-              className="bg-gray-800/50 rounded-2xl p-8 border border-gray-700/50"
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleExecute = () => {
+    console.log('Executing Dip Bot with:', formData);
+  };
+
+  return (
+    <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #f5e6a3 0%, #d4af37 100%)' }}>
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* Navigation Tabs */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Trading Bots</h2>
+          <div className="flex space-x-1">
+            <Link 
+              to="/dip-bot" 
+              className="px-6 py-2 bg-blue-500 text-white rounded-t-lg font-medium"
             >
-              <div className="text-sky-400 mb-4">{feature.icon}</div>
-              <h3 className="text-xl font-bold text-white mb-4">{feature.title}</h3>
-              <p className="text-gray-300">{feature.description}</p>
-            </motion.div>
-          ))}
+              Dip Bot
+            </Link>
+            <Link 
+              to="/grid-bot" 
+              className="px-6 py-2 bg-gray-300 text-gray-700 rounded-t-lg font-medium hover:bg-gray-400"
+            >
+              Grid Bot
+            </Link>
+            <Link 
+              to="/momentum-bot" 
+              className="px-6 py-2 bg-gray-300 text-gray-700 rounded-t-lg font-medium hover:bg-gray-400"
+            >
+              Momentum Bot
+            </Link>
+          </div>
         </div>
 
-        {/* Bot Visualization */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-          className="bg-gray-800/50 rounded-2xl p-8 border border-gray-700/50 mb-16"
-        >
-          <h2 className="text-3xl font-bold text-white mb-8 text-center">Dip Bot Performance</h2>
-          <div className="grid md:grid-cols-2 gap-8">
-            <div>
-              <img 
-                src="https://images.pexels.com/photos/6802042/pexels-photo-6802042.jpeg?auto=compress&cs=tinysrgb&w=600"
-                alt="Dip Bot Trading Chart"
-                className="w-full h-64 object-cover rounded-lg mb-4"
-              />
-              <h3 className="text-xl font-bold text-white mb-2">Real-time Analysis</h3>
-              <p className="text-gray-300">Monitor market conditions and dip patterns in real-time</p>
-            </div>
-            <div>
-              <img 
-                src="https://images.pexels.com/photos/6801648/pexels-photo-6801648.jpeg?auto=compress&cs=tinysrgb&w=600"
-                alt="Profit Analytics"
-                className="w-full h-64 object-cover rounded-lg mb-4"
-              />
-              <h3 className="text-xl font-bold text-white mb-2">Profit Analytics</h3>
-              <p className="text-gray-300">Track your bot's performance with detailed analytics</p>
-            </div>
-          </div>
-        </motion.div>
+        {/* Main Content Card */}
+        <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 shadow-lg">
+          <h1 className="text-3xl font-bold text-gray-800 mb-8">Dip Bot</h1>
 
-        {/* Configuration Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
-          className="bg-gray-800/50 rounded-2xl p-8 border border-gray-700/50 mb-16"
-        >
-          <div className="flex items-center mb-6">
-            <Settings className="w-8 h-8 text-sky-400 mr-4" />
-            <h2 className="text-3xl font-bold text-white">Bot Configuration</h2>
-          </div>
-          
-          <div className="grid md:grid-cols-2 gap-8">
+          {/* Form */}
+          <div className="space-y-6 mb-8">
+            {/* Symbol */}
             <div>
-              <h3 className="text-xl font-bold text-white mb-4">Settings</h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-gray-300 mb-2">Dip Threshold (%)</label>
-                  <input 
-                    type="number" 
-                    className="w-full bg-gray-700 text-white rounded-lg px-4 py-2 border border-gray-600"
-                    placeholder="5"
-                  />
-                </div>
-                <div>
-                  <label className="block text-gray-300 mb-2">Investment Amount ($)</label>
-                  <input 
-                    type="number" 
-                    className="w-full bg-gray-700 text-white rounded-lg px-4 py-2 border border-gray-600"
-                    placeholder="1000"
-                  />
-                </div>
-                <div>
-                  <label className="block text-gray-300 mb-2">Take Profit (%)</label>
-                  <input 
-                    type="number" 
-                    className="w-full bg-gray-700 text-white rounded-lg px-4 py-2 border border-gray-600"
-                    placeholder="10"
-                  />
+              <label className="block text-gray-700 font-medium mb-2">Symbol:</label>
+              <div className="relative">
+                <select 
+                  value={formData.symbol}
+                  onChange={(e) => handleInputChange('symbol', e.target.value)}
+                  className="w-full bg-gray-100 border border-gray-300 rounded-lg px-4 py-3 text-gray-800 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="BTCUSDT">BTCUSDT</option>
+                  <option value="ETHUSDT">ETHUSDT</option>
+                  <option value="XRPUSDT">XRPUSDT</option>
+                </select>
+                <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                  <span className="text-gray-400">×</span>
                 </div>
               </div>
             </div>
+
+            {/* Exchange */}
+            <div>
+              <label className="block text-gray-700 font-medium mb-2">Exchange:</label>
+              <select 
+                value={formData.exchange}
+                onChange={(e) => handleInputChange('exchange', e.target.value)}
+                className="w-full bg-gray-100 border border-gray-300 rounded-lg px-4 py-3 text-gray-800 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="Bybit">Bybit</option>
+                <option value="Binance">Binance</option>
+                <option value="BingX">BingX</option>
+              </select>
+            </div>
+
+            {/* Side */}
+            <div>
+              <label className="block text-gray-700 font-medium mb-2">Side:</label>
+              <select 
+                value={formData.side}
+                onChange={(e) => handleInputChange('side', e.target.value)}
+                className="w-full bg-gray-100 border border-gray-300 rounded-lg px-4 py-3 text-gray-800 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="Buy">Buy</option>
+                <option value="Sell">Sell</option>
+              </select>
+            </div>
+
+            {/* Time Frame */}
+            <div>
+              <label className="block text-gray-700 font-medium mb-2">Time Frame:</label>
+              <select 
+                value={formData.timeFrame}
+                onChange={(e) => handleInputChange('timeFrame', e.target.value)}
+                className="w-full bg-gray-100 border border-gray-300 rounded-lg px-4 py-3 text-gray-800 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="1">1</option>
+                <option value="5">5</option>
+                <option value="15">15</option>
+                <option value="30">30</option>
+                <option value="60">60</option>
+              </select>
+            </div>
+
+            {/* Dip */}
+            <div>
+              <label className="block text-gray-700 font-medium mb-2">Dip:</label>
+              <select 
+                value={formData.dip}
+                onChange={(e) => handleInputChange('dip', e.target.value)}
+                className="w-full bg-gray-100 border border-gray-300 rounded-lg px-4 py-3 text-gray-800 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="5">5</option>
+              </select>
+            </div>
+
+            {/* Quantity */}
+            <div>
+              <label className="block text-gray-700 font-medium mb-2">Quantity:</label>
+              <input 
+                type="number"
+                value={formData.quantity}
+                onChange={(e) => handleInputChange('quantity', e.target.value)}
+                className="w-full bg-gray-100 border border-gray-300 rounded-lg px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+
+          {/* Execute Button */}
+          <button 
+            onClick={handleExecute}
+            className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold transition-colors duration-200"
+          >
+            Execute
+          </button>
+
+          {/* Orders Table */}
+          <div className="mt-12">
+            <h2 className="text-2xl font-bold text-gray-800 mb-6">Open Dip Bot Orders</h2>
             
-            <div>
-              <h3 className="text-xl font-bold text-white mb-4">Risk Management</h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-gray-300 mb-2">Stop Loss (%)</label>
-                  <input 
-                    type="number" 
-                    className="w-full bg-gray-700 text-white rounded-lg px-4 py-2 border border-gray-600"
-                    placeholder="5"
-                  />
-                </div>
-                <div>
-                  <label className="block text-gray-300 mb-2">Max Daily Trades</label>
-                  <input 
-                    type="number" 
-                    className="w-full bg-gray-700 text-white rounded-lg px-4 py-2 border border-gray-600"
-                    placeholder="10"
-                  />
-                </div>
-                <div>
-                  <label className="block text-gray-300 mb-2">Trading Pair</label>
-                  <select className="w-full bg-gray-700 text-white rounded-lg px-4 py-2 border border-gray-600">
-                    <option>BTC/USDT</option>
-                    <option>ETH/USDT</option>
-                    <option>XRP/USDT</option>
-                  </select>
-                </div>
+            {/* Table Header */}
+            <div className="bg-yellow-400 rounded-t-lg px-4 py-3">
+              <div className="grid grid-cols-8 gap-4 font-semibold text-gray-800">
+                <div>Symbol</div>
+                <div>Quantity</div>
+                <div>Mode</div>
+                <div>Exchange</div>
+                <div>Dip</div>
+                <div>Timeframe</div>
+                <div>Timestamp</div>
+                <div>Action</div>
               </div>
             </div>
+
+            {/* Table Body - Empty state */}
+            <div className="bg-white border border-gray-200 rounded-b-lg p-8 text-center text-gray-500">
+              No open orders
+            </div>
           </div>
-          
-          <div className="flex justify-center mt-8">
-            <button className="bg-sky-500 hover:bg-sky-600 text-white px-8 py-3 rounded-lg font-semibold transition-colors duration-200">
-              Start Dip Bot
-            </button>
-          </div>
-        </motion.div>
+        </div>
       </div>
     </div>
   );

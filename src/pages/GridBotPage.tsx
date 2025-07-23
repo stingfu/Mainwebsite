@@ -1,170 +1,171 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Grid3X3, TrendingUp, Zap, BarChart3, Settings } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { useTheme } from '../contexts/ThemeContext';
 
 const GridBotPage: React.FC = () => {
-  return (
-    <div className="min-h-screen py-20 px-4">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="text-center mb-16"
-        >
-          <div className="flex justify-center mb-6">
-            <Grid3X3 className="w-16 h-16 text-sky-400" />
-          </div>
-          <h1 className="text-5xl font-bold text-white mb-6">Grid Bot</h1>
-          <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-            Creates a grid of buy and sell orders to capture profits from market volatility. 
-            Perfect for sideways markets and range-bound trading.
-          </p>
-        </motion.div>
+  const { isDarkMode } = useTheme();
+  const [formData, setFormData] = useState({
+    pair: 'BTCUSDT',
+    strategy: 'Increasing Sell/Increasing Buy (ISIB)',
+    lowerLimit: '',
+    upperLimit: '',
+    investment: '',
+    smallGrid: '',
+    bigGrid: '',
+    dipPercentage: ''
+  });
 
-        {/* Features Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-          {[
-            {
-              icon: <Grid3X3 className="w-8 h-8" />,
-              title: 'Grid Strategy',
-              description: 'Automated grid of buy and sell orders at predetermined price levels'
-            },
-            {
-              icon: <TrendingUp className="w-8 h-8" />,
-              title: 'Volatility Capture',
-              description: 'Profits from market fluctuations regardless of overall direction'
-            },
-            {
-              icon: <Zap className="w-8 h-8" />,
-              title: 'Continuous Trading',
-              description: '24/7 automated trading without manual intervention'
-            }
-          ].map((feature, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: index * 0.2 }}
-              className="bg-gray-800/50 rounded-2xl p-8 border border-gray-700/50"
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleSubmit = () => {
+    console.log('Submitting Grid Bot with:', formData);
+  };
+
+  return (
+    <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #f5e6a3 0%, #d4af37 100%)' }}>
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* Navigation Tabs */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Trading Bots</h2>
+          <div className="flex space-x-1">
+            <Link 
+              to="/dip-bot" 
+              className="px-6 py-2 bg-gray-300 text-gray-700 rounded-t-lg font-medium hover:bg-gray-400"
             >
-              <div className="text-sky-400 mb-4">{feature.icon}</div>
-              <h3 className="text-xl font-bold text-white mb-4">{feature.title}</h3>
-              <p className="text-gray-300">{feature.description}</p>
-            </motion.div>
-          ))}
+              Dip Bot
+            </Link>
+            <Link 
+              to="/grid-bot" 
+              className="px-6 py-2 bg-blue-500 text-white rounded-t-lg font-medium"
+            >
+              Grid Bot
+            </Link>
+            <Link 
+              to="/momentum-bot" 
+              className="px-6 py-2 bg-gray-300 text-gray-700 rounded-t-lg font-medium hover:bg-gray-400"
+            >
+              Momentum Bot
+            </Link>
+          </div>
         </div>
 
-        {/* Grid Visualization */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-          className="bg-gray-800/50 rounded-2xl p-8 border border-gray-700/50 mb-16"
-        >
-          <h2 className="text-3xl font-bold text-white mb-8 text-center">Grid Trading Visualization</h2>
-          <div className="grid md:grid-cols-2 gap-8">
-            <div>
-              <img 
-                src="https://images.pexels.com/photos/6802052/pexels-photo-6802052.jpeg?auto=compress&cs=tinysrgb&w=600"
-                alt="Grid Trading Pattern"
-                className="w-full h-64 object-cover rounded-lg mb-4"
-              />
-              <h3 className="text-xl font-bold text-white mb-2">Grid Pattern</h3>
-              <p className="text-gray-300">Visual representation of your grid trading strategy</p>
-            </div>
-            <div>
-              <img 
-                src="https://images.pexels.com/photos/6801874/pexels-photo-6801874.jpeg?auto=compress&cs=tinysrgb&w=600"
-                alt="Performance Metrics"
-                className="w-full h-64 object-cover rounded-lg mb-4"
-              />
-              <h3 className="text-xl font-bold text-white mb-2">Performance Metrics</h3>
-              <p className="text-gray-300">Real-time statistics and profit calculations</p>
-            </div>
-          </div>
-        </motion.div>
+        {/* Main Content Card */}
+        <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 shadow-lg">
+          <h1 className="text-3xl font-bold text-gray-800 mb-8">Grid Bot</h1>
 
-        {/* Configuration Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
-          className="bg-gray-800/50 rounded-2xl p-8 border border-gray-700/50 mb-16"
-        >
-          <div className="flex items-center mb-6">
-            <Settings className="w-8 h-8 text-sky-400 mr-4" />
-            <h2 className="text-3xl font-bold text-white">Grid Configuration</h2>
-          </div>
-          
-          <div className="grid md:grid-cols-2 gap-8">
+          {/* Form */}
+          <div className="space-y-6 mb-8">
+            {/* Pair */}
             <div>
-              <h3 className="text-xl font-bold text-white mb-4">Grid Parameters</h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-gray-300 mb-2">Upper Price ($)</label>
-                  <input 
-                    type="number" 
-                    className="w-full bg-gray-700 text-white rounded-lg px-4 py-2 border border-gray-600"
-                    placeholder="45000"
-                  />
-                </div>
-                <div>
-                  <label className="block text-gray-300 mb-2">Lower Price ($)</label>
-                  <input 
-                    type="number" 
-                    className="w-full bg-gray-700 text-white rounded-lg px-4 py-2 border border-gray-600"
-                    placeholder="40000"
-                  />
-                </div>
-                <div>
-                  <label className="block text-gray-300 mb-2">Grid Lines</label>
-                  <input 
-                    type="number" 
-                    className="w-full bg-gray-700 text-white rounded-lg px-4 py-2 border border-gray-600"
-                    placeholder="10"
-                  />
+              <label className="block text-gray-700 font-medium mb-2">Pair:</label>
+              <div className="relative">
+                <select 
+                  value={formData.pair}
+                  onChange={(e) => handleInputChange('pair', e.target.value)}
+                  className="w-full bg-gray-100 border border-gray-300 rounded-lg px-4 py-3 text-gray-800 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="BTCUSDT">BTCUSDT</option>
+                  <option value="ETHUSDT">ETHUSDT</option>
+                  <option value="XRPUSDT">XRPUSDT</option>
+                </select>
+                <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                  <span className="text-gray-400">×</span>
                 </div>
               </div>
             </div>
-            
+
+            {/* Strategy */}
             <div>
-              <h3 className="text-xl font-bold text-white mb-4">Investment Settings</h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-gray-300 mb-2">Total Investment ($)</label>
-                  <input 
-                    type="number" 
-                    className="w-full bg-gray-700 text-white rounded-lg px-4 py-2 border border-gray-600"
-                    placeholder="5000"
-                  />
-                </div>
-                <div>
-                  <label className="block text-gray-300 mb-2">Trading Pair</label>
-                  <select className="w-full bg-gray-700 text-white rounded-lg px-4 py-2 border border-gray-600">
-                    <option>BTC/USDT</option>
-                    <option>ETH/USDT</option>
-                    <option>XRP/USDT</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-gray-300 mb-2">Grid Type</label>
-                  <select className="w-full bg-gray-700 text-white rounded-lg px-4 py-2 border border-gray-600">
-                    <option>Arithmetic Grid</option>
-                    <option>Geometric Grid</option>
-                  </select>
-                </div>
-              </div>
+              <label className="block text-gray-700 font-medium mb-2">Strategy:</label>
+              <select 
+                value={formData.strategy}
+                onChange={(e) => handleInputChange('strategy', e.target.value)}
+                className="w-full bg-gray-100 border border-gray-300 rounded-lg px-4 py-3 text-gray-800 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="Increasing Sell/Increasing Buy (ISIB)">Increasing Sell/Increasing Buy (ISIB)</option>
+                <option value="Fixed Grid">Fixed Grid</option>
+                <option value="Geometric Grid">Geometric Grid</option>
+              </select>
+            </div>
+
+            {/* Lower Limit */}
+            <div>
+              <label className="block text-gray-700 font-medium mb-2">Lower Limit:</label>
+              <input 
+                type="number"
+                value={formData.lowerLimit}
+                onChange={(e) => handleInputChange('lowerLimit', e.target.value)}
+                className="w-full bg-gray-100 border border-gray-300 rounded-lg px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            {/* Upper Limit */}
+            <div>
+              <label className="block text-gray-700 font-medium mb-2">Upper Limit:</label>
+              <input 
+                type="number"
+                value={formData.upperLimit}
+                onChange={(e) => handleInputChange('upperLimit', e.target.value)}
+                className="w-full bg-gray-100 border border-gray-300 rounded-lg px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            {/* Investment */}
+            <div>
+              <label className="block text-gray-700 font-medium mb-2">Investment:</label>
+              <input 
+                type="number"
+                value={formData.investment}
+                onChange={(e) => handleInputChange('investment', e.target.value)}
+                className="w-full bg-gray-100 border border-gray-300 rounded-lg px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            {/* Small Grid */}
+            <div>
+              <label className="block text-gray-700 font-medium mb-2">Small Grid:</label>
+              <input 
+                type="number"
+                value={formData.smallGrid}
+                onChange={(e) => handleInputChange('smallGrid', e.target.value)}
+                className="w-full bg-gray-100 border border-gray-300 rounded-lg px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            {/* Big Grid */}
+            <div>
+              <label className="block text-gray-700 font-medium mb-2">Big Grid:</label>
+              <input 
+                type="number"
+                value={formData.bigGrid}
+                onChange={(e) => handleInputChange('bigGrid', e.target.value)}
+                className="w-full bg-gray-100 border border-gray-300 rounded-lg px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            {/* Dip Percentage */}
+            <div>
+              <label className="block text-gray-700 font-medium mb-2">Dip Percentage:</label>
+              <input 
+                type="number"
+                value={formData.dipPercentage}
+                onChange={(e) => handleInputChange('dipPercentage', e.target.value)}
+                className="w-full bg-gray-100 border border-gray-300 rounded-lg px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
             </div>
           </div>
-          
-          <div className="flex justify-center mt-8">
-            <button className="bg-sky-500 hover:bg-sky-600 text-white px-8 py-3 rounded-lg font-semibold transition-colors duration-200">
-              Start Grid Bot
-            </button>
-          </div>
-        </motion.div>
+
+          {/* Submit Button */}
+          <button 
+            onClick={handleSubmit}
+            className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold transition-colors duration-200"
+          >
+            Submit
+          </button>
+        </div>
       </div>
     </div>
   );
