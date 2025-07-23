@@ -210,12 +210,18 @@ const Header: React.FC = () => {
 
               {/* Auth Buttons */}
               <div className="hidden md:flex items-center space-x-3">
-                <button className="transition-colors duration-200 font-medium text-white hover:text-sky-400">
+                <Link 
+                  to="/signin"
+                  className="transition-colors duration-200 font-medium text-white hover:text-sky-400"
+                >
                   Sign In
-                </button>
-                <button className="px-4 py-2 rounded-lg transition-colors duration-200 font-medium bg-sky-500 hover:bg-sky-600 text-white">
+                </Link>
+                <Link 
+                  to="/signup"
+                  className="px-4 py-2 rounded-lg transition-colors duration-200 font-medium bg-sky-500 hover:bg-sky-600 text-white"
+                >
                   Sign Up
-                </button>
+                </Link>
               </div>
 
               {/* Mobile Menu Button */}
@@ -247,8 +253,8 @@ const Header: React.FC = () => {
                 <Link to="/news" className="block py-2 text-white hover:text-sky-400" onClick={() => setIsMobileMenuOpen(false)}>News</Link>
                 <Link to="/faq" className="block py-2 text-white hover:text-sky-400" onClick={() => setIsMobileMenuOpen(false)}>FAQs</Link>
                 <div className="flex space-x-3 pt-4">
-                  <button className="transition-colors duration-200 text-white hover:text-sky-400">Sign In</button>
-                  <button className="px-4 py-2 rounded-lg transition-colors duration-200 bg-sky-500 hover:bg-sky-600 text-white">Sign Up</button>
+                  <Link to="/signin" className="transition-colors duration-200 text-white hover:text-sky-400" onClick={() => setIsMobileMenuOpen(false)}>Sign In</Link>
+                  <Link to="/signup" className="px-4 py-2 rounded-lg transition-colors duration-200 bg-sky-500 hover:bg-sky-600 text-white" onClick={() => setIsMobileMenuOpen(false)}>Sign Up</Link>
                 </div>
               </div>
             </motion.div>
