@@ -231,8 +231,6 @@ const Header: React.FC = () => {
 
                 </Link>
 
-                </button>
-                
                 {/* Settings Dropdown */}
                 <div className="relative dropdown-container">
                   <button 
@@ -279,8 +277,6 @@ const Header: React.FC = () => {
                   <Link to="/signin" className="transition-colors duration-200 text-white hover:text-sky-400" onClick={() => setIsMobileMenuOpen(false)}>Sign In</Link>
                   <Link to="/signup" className="px-4 py-2 rounded-lg transition-colors duration-200 bg-sky-500 hover:bg-sky-600 text-white" onClick={() => setIsMobileMenuOpen(false)}>Sign Up</Link>
 
-                  <button className="transition-colors duration-200 text-white hover:text-sky-400">Sign In</button>
-                  <button className="px-4 py-2 rounded-lg transition-colors duration-200 bg-sky-500 hover:bg-sky-600 text-white">Sign Up</button>
                   <button 
                     className="p-2 transition-colors duration-200 text-white hover:text-sky-400"
                     onClick={() => handleDropdownClick('settings')}
