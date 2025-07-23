@@ -229,8 +229,6 @@ const Header: React.FC = () => {
                 >
                   Sign Up
 
-                </Link>
-
                 {/* Settings Dropdown */}
                 <div className="relative dropdown-container">
                   <button 
@@ -283,7 +281,6 @@ const Header: React.FC = () => {
                   >
                     <Settings className="w-5 h-5" />
                   </button>
-
                 </div>
               </div>
             </motion.div>
