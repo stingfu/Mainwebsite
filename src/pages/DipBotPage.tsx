@@ -290,7 +290,6 @@ const DipBotPage: React.FC = () => {
             </button>
           </div>
         </form>
-          </form>
       </div>
     </div>
   );
