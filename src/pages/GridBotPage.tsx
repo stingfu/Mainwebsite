@@ -344,15 +344,3 @@ const GridBotPage: React.FC = () => {
 };
 
 export default GridBotPage;
-            >
-              <Grid3X3 className="w-5 h-5 mr-2" />
-              Start Grid Bot
-            </button>
-          </div>
-        </motion.div>
-      </div>
-    </div>
-  );
-};
-
-export default GridBotPage;
