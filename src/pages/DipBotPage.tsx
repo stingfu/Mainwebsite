@@ -289,8 +289,8 @@ const DipBotPage: React.FC = () => {
               Start Dip Bot
             </button>
           </div>
+        </form>
           </form>
-        </motion.div>
       </div>
     </div>
   );
