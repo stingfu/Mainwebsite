@@ -1,12 +1,17 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Grid3X3, Settings } from 'lucide-react';
+import { Grid3X3, Settings, AlertCircle } from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
+import SearchableSelect from '../components/ui/SearchableSelect';
+import { tradingSymbols, gridStrategyOptions } from '../data/tradingSymbols';
+import { validateGridBot, ValidationError, GridBotFormData } from '../utils/validation';
 
 const GridBotPage: React.FC = () => {
+  const { isDarkMode } = useTheme();
   const [formData, setFormData] = useState({
-    pair: 'BTC/USDT',
-    strategy: 'Increasing Sell/Increasing Buy (ISIB)',
+    pair: '',
+    strategy: 'ISIB',
     lowerLimit: '',
     upperLimit: '',
     investment: '',
@@ -15,12 +20,37 @@ const GridBotPage: React.FC = () => {
     dipPercentage: ''
   });
 
-  const handleInputChange = (field: string, value: string) => {
+  const [errors, setErrors] = useState<ValidationError[]>([]);
+
+  const handleInputChange = (field: string, value: string | string[]) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    // Clear errors for this field when user starts typing
+    setErrors(prev => prev.filter(error => error.field !== field));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Validate form data
+    const validationErrors = validateGridBot(formData);
+    
+    if (validationErrors.length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+    
+    // Clear errors and submit
+    setErrors([]);
     console.log('Submitting Grid Bot with:', formData);
+    // Here you would typically send the data to your backend
+  };
+
+  const getFieldError = (fieldName: string) => {
+    return errors.find(error => error.field === fieldName);
+  };
+
+  const hasFieldError = (fieldName: string) => {
+    return errors.some(error => error.field === fieldName);
   };
 
   const botTabs = [
@@ -31,7 +61,11 @@ const GridBotPage: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 py-20 px-4">
+    <div className={`min-h-screen py-20 px-4 ${
+      isDarkMode 
+        ? 'bg-gradient-to-br from-gray-900 via-black to-gray-800' 
+        : 'bg-gradient-to-br from-gray-50 via-white to-gray-100'
+    }`}>
       <div className="max-w-7xl mx-auto">
         {/* Navigation Tabs */}
         <motion.div
@@ -48,7 +82,9 @@ const GridBotPage: React.FC = () => {
                 className={`px-6 py-3 rounded-lg font-semibold transition-all duration-200 ${
                   tab.active
                     ? 'bg-sky-500 text-white'
-                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                    : isDarkMode
+                      ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                 }`}
               >
                 {tab.name}
@@ -62,66 +98,97 @@ const GridBotPage: React.FC = () => {
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4 }}
-          className="bg-gray-800/80 rounded-2xl p-8 border border-gray-700/50 backdrop-blur-sm"
+          className={`rounded-2xl p-8 border backdrop-blur-sm ${
+            isDarkMode 
+              ? 'bg-gray-800/80 border-gray-700/50' 
+              : 'bg-white/80 border-gray-200/50'
+          }`}
         >
           <div className="flex items-center mb-8">
             <Settings className="w-8 h-8 text-sky-400 mr-4" />
-            <h2 className="text-3xl font-bold text-white">Grid Bot Configuration</h2>
+            <h2 className={`text-3xl font-bold ${
+              isDarkMode ? 'text-white' : 'text-gray-900'
+            }`}>Grid Bot Configuration</h2>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid md:grid-cols-2 gap-8">
             {/* Left Column */}
             <div className="space-y-6">
               {/* Trading Pair */}
-              <div>
-                <label className="block text-gray-300 font-medium mb-3">Trading Pair</label>
-                <select 
-                  value={formData.pair}
-                  onChange={(e) => handleInputChange('pair', e.target.value)}
-                  className="w-full bg-gray-700 text-white rounded-lg px-4 py-3 border border-gray-600 focus:border-sky-500 focus:outline-none transition-colors"
-                >
-                  <option value="BTC/USDT">BTC/USDT</option>
-                  <option value="ETH/USDT">ETH/USDT</option>
-                  <option value="XRP/USDT">XRP/USDT</option>
-                </select>
-              </div>
+              <SearchableSelect
+                label="Trading Pair"
+                options={tradingSymbols.gridBot}
+                value={formData.pair}
+                onChange={(value) => handleInputChange('pair', value as string)}
+                placeholder="Select trading pair"
+                required
+                error={hasFieldError('pair')}
+              />
 
               {/* Grid Strategy */}
-              <div>
-                <label className="block text-gray-300 font-medium mb-3">Grid Strategy</label>
-                <select 
-                  value={formData.strategy}
-                  onChange={(e) => handleInputChange('strategy', e.target.value)}
-                  className="w-full bg-gray-700 text-white rounded-lg px-4 py-3 border border-gray-600 focus:border-sky-500 focus:outline-none transition-colors"
-                >
-                  <option value="Increasing Sell/Increasing Buy (ISIB)">Increasing Sell/Increasing Buy (ISIB)</option>
-                  <option value="Fixed Grid">Fixed Grid</option>
-                  <option value="Geometric Grid">Geometric Grid</option>
-                </select>
-              </div>
+              <SearchableSelect
+                label="Grid Strategy"
+                options={gridStrategyOptions}
+                value={formData.strategy}
+                onChange={(value) => handleInputChange('strategy', value as string)}
+                placeholder="Select grid strategy"
+                required
+                error={hasFieldError('strategy')}
+              />
 
               {/* Lower Price Limit */}
               <div>
-                <label className="block text-gray-300 font-medium mb-3">Lower Price Limit</label>
+                <label className={`block font-medium mb-3 ${
+                  isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                }`}>
+                  Lower Price Limit
+                  <span className="text-red-400 ml-1">*</span>
+                </label>
                 <input 
                   type="number"
+                  step="any"
                   value={formData.lowerLimit}
                   onChange={(e) => handleInputChange('lowerLimit', e.target.value)}
-                  className="w-full bg-gray-700 text-white rounded-lg px-4 py-3 border border-gray-600 focus:border-sky-500 focus:outline-none transition-colors"
+                  className={`w-full rounded-lg px-4 py-3 border transition-colors ${
+                    hasFieldError('lowerLimit')
+                      ? 'border-red-500 bg-red-50'
+                      : isDarkMode
+                        ? 'bg-gray-700 border-gray-600 text-white focus:border-sky-500'
+                        : 'bg-white border-gray-300 text-gray-900 focus:border-sky-500'
+                  } focus:outline-none`}
                   placeholder="Enter lower price limit"
                 />
+                {getFieldError('lowerLimit') && (
+                  <p className="mt-1 text-sm text-red-500">{getFieldError('lowerLimit')?.message}</p>
+                )}
               </div>
 
               {/* Upper Price Limit */}
               <div>
-                <label className="block text-gray-300 font-medium mb-3">Upper Price Limit</label>
+                <label className={`block font-medium mb-3 ${
+                  isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                }`}>
+                  Upper Price Limit
+                  <span className="text-red-400 ml-1">*</span>
+                </label>
                 <input 
                   type="number"
+                  step="any"
                   value={formData.upperLimit}
                   onChange={(e) => handleInputChange('upperLimit', e.target.value)}
-                  className="w-full bg-gray-700 text-white rounded-lg px-4 py-3 border border-gray-600 focus:border-sky-500 focus:outline-none transition-colors"
+                  className={`w-full rounded-lg px-4 py-3 border transition-colors ${
+                    hasFieldError('upperLimit')
+                      ? 'border-red-500 bg-red-50'
+                      : isDarkMode
+                        ? 'bg-gray-700 border-gray-600 text-white focus:border-sky-500'
+                        : 'bg-white border-gray-300 text-gray-900 focus:border-sky-500'
+                  } focus:outline-none`}
                   placeholder="Enter upper price limit"
                 />
+                {getFieldError('upperLimit') && (
+                  <p className="mt-1 text-sm text-red-500">{getFieldError('upperLimit')?.message}</p>
+                )}
               </div>
             </div>
 
@@ -129,59 +196,154 @@ const GridBotPage: React.FC = () => {
             <div className="space-y-6">
               {/* Total Investment */}
               <div>
-                <label className="block text-gray-300 font-medium mb-3">Total Investment (USDT)</label>
+                <label className={`block font-medium mb-3 ${
+                  isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                }`}>
+                  Total Investment (USDT)
+                  <span className="text-red-400 ml-1">*</span>
+                </label>
                 <input 
                   type="number"
+                  step="any"
                   value={formData.investment}
                   onChange={(e) => handleInputChange('investment', e.target.value)}
-                  className="w-full bg-gray-700 text-white rounded-lg px-4 py-3 border border-gray-600 focus:border-sky-500 focus:outline-none transition-colors"
+                  className={`w-full rounded-lg px-4 py-3 border transition-colors ${
+                    hasFieldError('investment')
+                      ? 'border-red-500 bg-red-50'
+                      : isDarkMode
+                        ? 'bg-gray-700 border-gray-600 text-white focus:border-sky-500'
+                        : 'bg-white border-gray-300 text-gray-900 focus:border-sky-500'
+                  } focus:outline-none`}
                   placeholder="Enter total investment amount"
                 />
+                {getFieldError('investment') && (
+                  <p className="mt-1 text-sm text-red-500">{getFieldError('investment')?.message}</p>
+                )}
               </div>
 
               {/* Small Grid Size */}
               <div>
-                <label className="block text-gray-300 font-medium mb-3">Small Grid Size</label>
+                <label className={`block font-medium mb-3 ${
+                  isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                }`}>
+                  Small Grid Size (%)
+                  <span className="text-red-400 ml-1">*</span>
+                </label>
                 <input 
                   type="number"
+                  step="0.01"
+                  min="0.2"
                   value={formData.smallGrid}
                   onChange={(e) => handleInputChange('smallGrid', e.target.value)}
-                  className="w-full bg-gray-700 text-white rounded-lg px-4 py-3 border border-gray-600 focus:border-sky-500 focus:outline-none transition-colors"
-                  placeholder="Enter small grid size"
+                  className={`w-full rounded-lg px-4 py-3 border transition-colors ${
+                    hasFieldError('smallGrid')
+                      ? 'border-red-500 bg-red-50'
+                      : isDarkMode
+                        ? 'bg-gray-700 border-gray-600 text-white focus:border-sky-500'
+                        : 'bg-white border-gray-300 text-gray-900 focus:border-sky-500'
+                  } focus:outline-none`}
+                  placeholder="Enter small grid size (min 0.2%)"
                 />
+                {getFieldError('smallGrid') && (
+                  <p className="mt-1 text-sm text-red-500">{getFieldError('smallGrid')?.message}</p>
+                )}
               </div>
 
               {/* Large Grid Size */}
               <div>
-                <label className="block text-gray-300 font-medium mb-3">Large Grid Size</label>
+                <label className={`block font-medium mb-3 ${
+                  isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                }`}>
+                  Large Grid Size
+                  <span className="text-red-400 ml-1">*</span>
+                </label>
                 <input 
                   type="number"
+                  step="1"
+                  min="1"
                   value={formData.bigGrid}
                   onChange={(e) => handleInputChange('bigGrid', e.target.value)}
-                  className="w-full bg-gray-700 text-white rounded-lg px-4 py-3 border border-gray-600 focus:border-sky-500 focus:outline-none transition-colors"
-                  placeholder="Enter large grid size"
+                  className={`w-full rounded-lg px-4 py-3 border transition-colors ${
+                    hasFieldError('bigGrid')
+                      ? 'border-red-500 bg-red-50'
+                      : isDarkMode
+                        ? 'bg-gray-700 border-gray-600 text-white focus:border-sky-500'
+                        : 'bg-white border-gray-300 text-gray-900 focus:border-sky-500'
+                  } focus:outline-none`}
+                  placeholder="Enter large grid size (positive integer)"
                 />
+                {getFieldError('bigGrid') && (
+                  <p className="mt-1 text-sm text-red-500">{getFieldError('bigGrid')?.message}</p>
+                )}
               </div>
 
               {/* Dip Percentage */}
               <div>
-                <label className="block text-gray-300 font-medium mb-3">Dip Percentage (%)</label>
+                <label className={`block font-medium mb-3 ${
+                  isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                }`}>
+                  Dip Percentage (%) - Optional
+                </label>
                 <input 
                   type="number"
+                  step="any"
                   value={formData.dipPercentage}
                   onChange={(e) => handleInputChange('dipPercentage', e.target.value)}
-                  className="w-full bg-gray-700 text-white rounded-lg px-4 py-3 border border-gray-600 focus:border-sky-500 focus:outline-none transition-colors"
+                  className={`w-full rounded-lg px-4 py-3 border transition-colors ${
+                    hasFieldError('dipPercentage')
+                      ? 'border-red-500 bg-red-50'
+                      : isDarkMode
+                        ? 'bg-gray-700 border-gray-600 text-white focus:border-sky-500'
+                        : 'bg-white border-gray-300 text-gray-900 focus:border-sky-500'
+                  } focus:outline-none`}
                   placeholder="Enter dip percentage"
                 />
+                {getFieldError('dipPercentage') && (
+                  <p className="mt-1 text-sm text-red-500">{getFieldError('dipPercentage')?.message}</p>
+                )}
               </div>
             </div>
-          </div>
+            </div>
 
-          {/* Submit Button */}
-          <div className="flex justify-center mt-8">
-            <button 
-              onClick={handleSubmit}
-              className="bg-sky-500 hover:bg-sky-600 text-white px-8 py-3 rounded-lg font-semibold transition-colors duration-200 flex items-center"
+            {/* Error Messages */}
+            {errors.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-red-50 border border-red-200 rounded-lg p-4"
+              >
+                <div className="flex items-start">
+                  <AlertCircle className="w-5 h-5 text-red-500 mt-0.5 mr-3 flex-shrink-0" />
+                  <div>
+                    <h3 className="text-red-800 font-medium mb-2">Please fix the following errors:</h3>
+                    <ul className="text-red-700 text-sm space-y-1">
+                      {errors.map((error, index) => (
+                        <li key={index}>• {error.message}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Submit Button */}
+            <div className="flex justify-center mt-8">
+              <button 
+                type="submit"
+                className="bg-sky-500 hover:bg-sky-600 text-white px-8 py-3 rounded-lg font-semibold transition-colors duration-200 flex items-center"
+              >
+                <Grid3X3 className="w-5 h-5 mr-2" />
+                Start Grid Bot
+              </button>
+            </div>
+          </form>
+        </motion.div>
+      </div>
+    </div>
+  );
+};
+
+export default GridBotPage;
             >
               <Grid3X3 className="w-5 h-5 mr-2" />
               Start Grid Bot

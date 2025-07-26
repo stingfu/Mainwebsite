@@ -8,3 +8,4 @@ export { default as FeatureCard } from './FeatureCard';
 export { default as Section } from './Section';
 export { default as LoadingSpinner } from './LoadingSpinner';
 export { default as Modal } from './Modal';
+export { default as SearchableSelect } from './SearchableSelect';

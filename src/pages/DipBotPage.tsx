@@ -1,24 +1,72 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { TrendingUp, Settings } from 'lucide-react';
+import { TrendingUp, Settings, AlertCircle } from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
+import SearchableSelect from '../components/ui/SearchableSelect';
+import { tradingSymbols, timeFrameOptions, dipPercentageOptions, exchangeOptions, orderTypeOptions } from '../data/tradingSymbols';
+import { validateDipBot, checkDuplicateOrder, ValidationError, DipBotFormData } from '../utils/validation';
 
 const DipBotPage: React.FC = () => {
+  const { isDarkMode } = useTheme();
   const [formData, setFormData] = useState({
-    symbol: 'BTC/USDT',
-    exchange: 'Bybit',
-    side: 'Buy',
-    timeFrame: '1 minute',
-    dip: '1%',
-    quantity: '5000'
+    symbol: '',
+    exchange: 'bybit',
+    orderType: 'buy',
+    timeFrame: '1',
+    dipPercentage: '1',
+    quantity: ''
   });
+  
+  const [errors, setErrors] = useState<ValidationError[]>([]);
+  const [availableSymbols, setAvailableSymbols] = useState<string[]>([]);
+  const [existingOrders] = useState<DipBotFormData[]>([]); // This would come from your backend
 
-  const handleInputChange = (field: string, value: string) => {
+  // Update available symbols when exchange changes
+  useEffect(() => {
+    if (formData.exchange) {
+      setAvailableSymbols(tradingSymbols.dipBot[formData.exchange as keyof typeof tradingSymbols.dipBot] || []);
+      // Reset symbol if it's not available in the new exchange
+      if (formData.symbol && !tradingSymbols.dipBot[formData.exchange as keyof typeof tradingSymbols.dipBot]?.includes(formData.symbol)) {
+        setFormData(prev => ({ ...prev, symbol: '' }));
+      }
+    }
+  }, [formData.exchange, formData.symbol]);
+
+  const handleInputChange = (field: string, value: string | string[]) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    // Clear errors for this field when user starts typing
+    setErrors(prev => prev.filter(error => error.field !== field));
   };
 
-  const handleExecute = () => {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Validate form data
+    const validationErrors = validateDipBot(formData);
+    
+    // Check for duplicate orders
+    if (validationErrors.length === 0 && checkDuplicateOrder(formData, existingOrders)) {
+      validationErrors.push({ field: 'general', message: 'Duplicate Order: This configuration already exists' });
+    }
+    
+    if (validationErrors.length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+    
+    // Clear errors and submit
+    setErrors([]);
     console.log('Executing Dip Bot with:', formData);
+    // Here you would typically send the data to your backend
+  };
+
+  const getFieldError = (fieldName: string) => {
+    return errors.find(error => error.field === fieldName);
+  };
+
+  const hasFieldError = (fieldName: string) => {
+    return errors.some(error => error.field === fieldName);
   };
 
   const botTabs = [
@@ -29,7 +77,11 @@ const DipBotPage: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 py-20 px-4">
+    <div className={`min-h-screen py-20 px-4 ${
+      isDarkMode 
+        ? 'bg-gradient-to-br from-gray-900 via-black to-gray-800' 
+        : 'bg-gradient-to-br from-gray-50 via-white to-gray-100'
+    }`}>
       <div className="max-w-7xl mx-auto">
         {/* Navigation Tabs */}
         <motion.div
@@ -46,7 +98,9 @@ const DipBotPage: React.FC = () => {
                 className={`px-6 py-3 rounded-lg font-semibold transition-all duration-200 ${
                   tab.active
                     ? 'bg-sky-500 text-white'
-                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                    : isDarkMode
+                      ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                 }`}
               >
                 {tab.name}
@@ -60,110 +114,148 @@ const DipBotPage: React.FC = () => {
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4 }}
-          className="bg-gray-800/80 rounded-2xl p-8 border border-gray-700/50 backdrop-blur-sm"
+          className={`rounded-2xl p-8 border backdrop-blur-sm ${
+            isDarkMode 
+              ? 'bg-gray-800/80 border-gray-700/50' 
+              : 'bg-white/80 border-gray-200/50'
+          }`}
         >
           <div className="flex items-center mb-8">
             <Settings className="w-8 h-8 text-sky-400 mr-4" />
-            <h2 className="text-3xl font-bold text-white">Dip Bot Configuration</h2>
+            <h2 className={`text-3xl font-bold ${
+              isDarkMode ? 'text-white' : 'text-gray-900'
+            }`}>Dip Bot Configuration</h2>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid md:grid-cols-2 gap-8">
             {/* Left Column */}
             <div className="space-y-6">
-              {/* Trading Symbol */}
-              <div>
-                <label className="block text-gray-300 font-medium mb-3">Trading Symbol</label>
-                <select 
-                  value={formData.symbol}
-                  onChange={(e) => handleInputChange('symbol', e.target.value)}
-                  className="w-full bg-gray-700 text-white rounded-lg px-4 py-3 border border-gray-600 focus:border-sky-500 focus:outline-none transition-colors"
-                >
-                  <option value="BTC/USDT">BTC/USDT</option>
-                  <option value="ETH/USDT">ETH/USDT</option>
-                  <option value="XRP/USDT">XRP/USDT</option>
-                </select>
-              </div>
-
               {/* Exchange */}
-              <div>
-                <label className="block text-gray-300 font-medium mb-3">Exchange</label>
-                <select 
-                  value={formData.exchange}
-                  onChange={(e) => handleInputChange('exchange', e.target.value)}
-                  className="w-full bg-gray-700 text-white rounded-lg px-4 py-3 border border-gray-600 focus:border-sky-500 focus:outline-none transition-colors"
-                >
-                  <option value="Bybit">Bybit</option>
-                  <option value="Binance">Binance</option>
-                  <option value="BingX">BingX</option>
-                </select>
-              </div>
+              <SearchableSelect
+                label="Exchange"
+                options={exchangeOptions}
+                value={formData.exchange}
+                onChange={(value) => handleInputChange('exchange', value as string)}
+                placeholder="Select exchange"
+                required
+                error={hasFieldError('exchange')}
+              />
+
+              {/* Trading Symbol */}
+              <SearchableSelect
+                label="Trading Symbol"
+                options={availableSymbols}
+                value={formData.symbol}
+                onChange={(value) => handleInputChange('symbol', value as string)}
+                placeholder="Select trading symbol"
+                required
+                error={hasFieldError('symbol')}
+              />
 
               {/* Trading Side */}
-              <div>
-                <label className="block text-gray-300 font-medium mb-3">Trading Side</label>
-                <select 
-                  value={formData.side}
-                  onChange={(e) => handleInputChange('side', e.target.value)}
-                  className="w-full bg-gray-700 text-white rounded-lg px-4 py-3 border border-gray-600 focus:border-sky-500 focus:outline-none transition-colors"
-                >
-                  <option value="Buy">Buy</option>
-                  <option value="Sell">Sell</option>
-                </select>
-              </div>
+              <SearchableSelect
+                label="Trading Side"
+                options={orderTypeOptions}
+                value={formData.orderType}
+                onChange={(value) => handleInputChange('orderType', value as string)}
+                placeholder="Select trading side"
+                required
+                error={hasFieldError('orderType')}
+              />
             </div>
 
             {/* Right Column */}
             <div className="space-y-6">
               {/* Time Frame */}
-              <div>
-                <label className="block text-gray-300 font-medium mb-3">Time Frame (minutes)</label>
-                <select 
-                  value={formData.timeFrame}
-                  onChange={(e) => handleInputChange('timeFrame', e.target.value)}
-                  className="w-full bg-gray-700 text-white rounded-lg px-4 py-3 border border-gray-600 focus:border-sky-500 focus:outline-none transition-colors"
-                >
-                  <option value="1 minute">1 minute</option>
-                  <option value="5 minutes">5 minutes</option>
-                  <option value="15 minutes">15 minutes</option>
-                  <option value="30 minutes">30 minutes</option>
-                  <option value="1 hour">1 hour</option>
-                </select>
-              </div>
+              <SearchableSelect
+                label="Time Frame"
+                options={timeFrameOptions}
+                value={formData.timeFrame}
+                onChange={(value) => handleInputChange('timeFrame', value as string)}
+                placeholder="Select time frame"
+                required
+                error={hasFieldError('timeFrame')}
+              />
 
               {/* Dip Percentage */}
-              <div>
-                <label className="block text-gray-300 font-medium mb-3">Dip Percentage (%)</label>
-                <select 
-                  value={formData.dip}
-                  onChange={(e) => handleInputChange('dip', e.target.value)}
-                  className="w-full bg-gray-700 text-white rounded-lg px-4 py-3 border border-gray-600 focus:border-sky-500 focus:outline-none transition-colors"
-                >
-                  <option value="1%">1%</option>
-                  <option value="2%">2%</option>
-                  <option value="3%">3%</option>
-                  <option value="5%">5%</option>
-                </select>
-              </div>
+              <SearchableSelect
+                label="Dip Percentage"
+                options={dipPercentageOptions}
+                value={formData.dipPercentage}
+                onChange={(value) => handleInputChange('dipPercentage', value as string)}
+                placeholder="Select dip percentage"
+                required
+                error={hasFieldError('dipPercentage')}
+              />
 
               {/* Investment Amount */}
               <div>
-                <label className="block text-gray-300 font-medium mb-3">Investment Amount (USDT)</label>
+                <label className={`block font-medium mb-3 ${
+                  isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                }`}>
+                  Quantity
+                  <span className="text-red-400 ml-1">*</span>
+                </label>
                 <input 
-                  type="number"
+                  type="text"
                   value={formData.quantity}
                   onChange={(e) => handleInputChange('quantity', e.target.value)}
-                  className="w-full bg-gray-700 text-white rounded-lg px-4 py-3 border border-gray-600 focus:border-sky-500 focus:outline-none transition-colors"
-                  placeholder="5000"
+                  className={`w-full rounded-lg px-4 py-3 border transition-colors ${
+                    hasFieldError('quantity')
+                      ? 'border-red-500 bg-red-50'
+                      : isDarkMode
+                        ? 'bg-gray-700 border-gray-600 text-white focus:border-sky-500'
+                        : 'bg-white border-gray-300 text-gray-900 focus:border-sky-500'
+                  } focus:outline-none`}
+                  placeholder="Enter quantity"
                 />
+                {getFieldError('quantity') && (
+                  <p className="mt-1 text-sm text-red-500">{getFieldError('quantity')?.message}</p>
+                )}
               </div>
             </div>
-          </div>
+            </div>
 
-          {/* Execute Button */}
-          <div className="flex justify-center mt-8">
-            <button 
-              onClick={handleExecute}
-              className="bg-sky-500 hover:bg-sky-600 text-white px-8 py-3 rounded-lg font-semibold transition-colors duration-200 flex items-center"
+            {/* Error Messages */}
+            {errors.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-red-50 border border-red-200 rounded-lg p-4"
+              >
+                <div className="flex items-start">
+                  <AlertCircle className="w-5 h-5 text-red-500 mt-0.5 mr-3 flex-shrink-0" />
+                  <div>
+                    <h3 className="text-red-800 font-medium mb-2">Please fix the following errors:</h3>
+                    <ul className="text-red-700 text-sm space-y-1">
+                      {errors.map((error, index) => (
+                        <li key={index}>• {error.message}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Submit Button */}
+            <div className="flex justify-center mt-8">
+              <button 
+                type="submit"
+                className="bg-sky-500 hover:bg-sky-600 text-white px-8 py-3 rounded-lg font-semibold transition-colors duration-200 flex items-center"
+              >
+                <TrendingUp className="w-5 h-5 mr-2" />
+                Start Dip Bot
+              </button>
+            </div>
+          </form>
+        </motion.div>
+      </div>
+    </div>
+  );
+};
+
+export default DipBotPage;
             >
               <TrendingUp className="w-5 h-5 mr-2" />
               Start Dip Bot
