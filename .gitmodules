@@ -1,3 +1,6 @@
 [submodule "Piyush"]
 	path = Piyush
 	url = https://github.com/stingfu/Piyush
+[submodule "Submodule-Comp"]
+	path = Submodule-Comp
+	url = https://github.com/stingfu/Submodule-Comp.git
