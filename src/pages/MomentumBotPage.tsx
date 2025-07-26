@@ -217,15 +217,3 @@ const MomentumBotPage: React.FC = () => {
 };
 
 export default MomentumBotPage;
-            >
-              <Zap className="w-5 h-5 mr-2" />
-              Start Momentum Bot
-            </button>
-          </div>
-        </motion.div>
-      </div>
-    </div>
-  );
-};
-
-export default MomentumBotPage;
