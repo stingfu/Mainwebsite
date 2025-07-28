@@ -15,6 +15,7 @@ import ArbitrageBotPage from './pages/ArbitrageBotPage';
 import PlansPage from './pages/PlansPage';
 import NewsPage from './pages/NewsPage';
 import FAQPage from './pages/FAQPage';
+import ScalpingBotPage from './pages/ScalpingBotPage';
 
 function AppContent() {
   const { isDarkMode } = useTheme();
@@ -40,6 +41,7 @@ function AppContent() {
           <Route path="/plans" element={<PlansPage />} />
           <Route path="/news" element={<NewsPage />} />
           <Route path="/faq" element={<FAQPage />} />
+          <Route path="/scalping-bot" element={<ScalpingBotPage />} />
         </Routes>
       </div>
     </Router>

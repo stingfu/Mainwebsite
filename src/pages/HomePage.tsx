@@ -102,7 +102,7 @@ const HomePage: React.FC = () => {
 
   const strategies = [
     { name: 'DCA Strategy', image: '📈', description: 'Dollar-cost averaging for steady growth' },
-    { name: 'Scalping', image: '⚡', description: 'Quick profits from small price movements' },
+    { name: 'Scalping', image: '⚡', description: 'Quick profits from small price movements', path: '/scalping-bot' },
     { name: 'Swing Trading', image: '🎯', description: 'Capture medium-term price swings' },
     { name: 'HODLing', image: '💎', description: 'Long-term holding strategy' }
   ];
@@ -387,7 +387,10 @@ const HomePage: React.FC = () => {
                 initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: index * 0.1 }}
-                className="bg-gray-800/50 rounded-xl p-6 border border-gray-700/50 text-center hover:border-sky-500/50 transition-all duration-300"
+                className={`bg-gray-800/50 rounded-xl p-6 border border-gray-700/50 text-center hover:border-sky-500/50 transition-all duration-300 ${
+                  strategy.path ? 'cursor-pointer' : ''
+                }`}
+                onClick={() => strategy.path && (window.location.href = strategy.path)}
               >
                 <div className="text-4xl mb-4">{strategy.image}</div>
                 <h3 className={`text-lg font-bold mb-2 ${
@@ -396,6 +399,11 @@ const HomePage: React.FC = () => {
                 <p className={`text-sm ${
                   isDarkMode ? 'text-gray-400' : 'text-gray-600'
                 }`}>{strategy.description}</p>
+                {strategy.path && (
+                  <div className="mt-4">
+                    <span className="text-sky-400 text-sm font-semibold">Click to explore →</span>
+                  </div>
+                )}
               </motion.div>
             ))}
           </div>
