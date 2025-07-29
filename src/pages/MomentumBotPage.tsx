@@ -221,7 +221,6 @@ const MomentumBotPage: React.FC = () => {
                 />
               </div>
             </div>
-          </div>
           
           {/* Error Messages */}
           {errors.length > 0 && (
