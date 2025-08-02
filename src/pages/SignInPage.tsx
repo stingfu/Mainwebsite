@@ -1,39 +1,79 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Eye, EyeOff, Mail, Lock, ArrowLeft } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 
-const SignInPage: React.FC = () => {
+interface LoginFormProps {
+  onSwitchToSignup?: () => void;
+  onSwitchToForgotPassword?: () => void;
+  onSwitchToForgotEmail?: () => void;
+}
+
+const EnhancedSigninForm: React.FC<LoginFormProps> = ({
+  onSwitchToSignup,
+  onSwitchToForgotPassword,
+  onSwitchToForgotEmail,
+}) => {
   const { isDarkMode } = useTheme();
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    setFormData((prev) => ({ ...prev, [id]: value }));
+    if (errors[id]) {
+      setErrors((prev) => ({ ...prev, [id]: '' }));
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle sign in logic here
-    console.log('Sign in:', { email, password, rememberMe });
+    setIsLoading(true);
+
+    // Simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    // Mock validation
+    const newErrors: { [key: string]: string } = {};
+    if (!formData.email) newErrors.email = 'Email is required';
+    if (!formData.password) newErrors.password = 'Password is required';
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      setIsLoading(false);
+      return;
+    }
+
+    // Success simulation
+    console.log('Login successful:', { ...formData, rememberMe });
+    setIsLoading(false);
+    navigate('/dashboard'); // Redirect after success
   };
 
   const handleSocialLogin = (provider: string) => {
-    console.log(`Login with ${provider}`);
+    console.log(`Initiating ${provider} login`);
   };
 
-  const handleExchangeLogin = (exchange: string) => {
-    console.log(`Login with ${exchange}`);
+  const handleCryptoLogin = (exchange: string) => {
+    console.log(`Initiating ${exchange} login`);
   };
 
   return (
-    <div className={`min-h-screen flex ${
-      isDarkMode 
-        ? 'bg-gradient-to-br from-gray-900 via-black to-gray-800' 
-        : 'bg-gradient-to-br from-gray-50 via-white to-gray-100'
-    }`}>
+    <div
+      className={`min-h-screen flex ${
+        isDarkMode
+          ? 'bg-gradient-to-br from-gray-900 via-black to-gray-800'
+          : 'bg-gradient-to-br from-gray-50 via-white to-gray-100'
+      }`}
+    >
       {/* Left Side - Image */}
       <div className="hidden lg:flex lg:w-1/2 relative">
-        <img 
+        <img
           src="https://images.pexels.com/photos/6801648/pexels-photo-6801648.jpeg?auto=compress&cs=tinysrgb&w=800"
           alt="Trading Dashboard"
           className="w-full h-full object-cover"
@@ -56,7 +96,7 @@ const SignInPage: React.FC = () => {
           className="w-full max-w-md"
         >
           {/* Back Button */}
-          <Link 
+          <Link
             to="/"
             className={`inline-flex items-center mb-8 transition-colors ${
               isDarkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'
@@ -68,9 +108,13 @@ const SignInPage: React.FC = () => {
 
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className={`text-3xl font-bold mb-2 ${
-              isDarkMode ? 'text-white' : 'text-gray-900'
-            }`}>Sign In</h1>
+            <h1
+              className={`text-3xl font-bold mb-2 ${
+                isDarkMode ? 'text-white' : 'text-gray-900'
+              }`}
+            >
+              Sign In
+            </h1>
             <p className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
               Welcome back! Please sign in to your account.
             </p>
@@ -81,8 +125,8 @@ const SignInPage: React.FC = () => {
             <button
               onClick={() => handleSocialLogin('google')}
               className={`w-full flex items-center justify-center px-6 py-4 rounded-xl transition-all duration-200 font-medium ${
-                isDarkMode 
-                  ? 'bg-gray-800 hover:bg-gray-700 border border-gray-600 text-white shadow-lg hover:shadow-xl' 
+                isDarkMode
+                  ? 'bg-gray-800 hover:bg-gray-700 border border-gray-600 text-white shadow-lg hover:shadow-xl'
                   : 'bg-white hover:bg-gray-50 border border-gray-200 text-gray-900 shadow-lg hover:shadow-xl'
               }`}
             >
@@ -94,7 +138,6 @@ const SignInPage: React.FC = () => {
               </svg>
               Continue with Google
             </button>
-            
             <button
               onClick={() => handleSocialLogin('facebook')}
               className="w-full flex items-center justify-center px-6 py-4 bg-[#1877F2] hover:bg-[#166FE5] text-white rounded-xl transition-all duration-200 font-medium shadow-lg hover:shadow-xl"
@@ -108,15 +151,19 @@ const SignInPage: React.FC = () => {
 
           {/* Exchange Login Buttons */}
           <div className="mb-6">
-            <p className={`text-sm text-center mb-3 ${
-              isDarkMode ? 'text-gray-400' : 'text-gray-600'
-            }`}>Or connect with your exchange</p>
+            <p
+              className={`text-sm text-center mb-3 ${
+                isDarkMode ? 'text-gray-400' : 'text-gray-600'
+              }`}
+            >
+              Or connect with your exchange
+            </p>
             <div className="grid grid-cols-3 gap-4">
               <button
-                onClick={() => handleExchangeLogin('binance')}
+                onClick={() => handleCryptoLogin('binance')}
                 className={`flex flex-col items-center p-4 rounded-xl transition-all duration-200 ${
-                  isDarkMode 
-                    ? 'bg-gray-800 hover:bg-gray-700 border border-gray-600 text-white shadow-lg hover:shadow-xl' 
+                  isDarkMode
+                    ? 'bg-gray-800 hover:bg-gray-700 border border-gray-600 text-white shadow-lg hover:shadow-xl'
                     : 'bg-white hover:bg-gray-50 border border-gray-200 text-gray-900 shadow-lg hover:shadow-xl'
                 }`}
               >
@@ -127,12 +174,11 @@ const SignInPage: React.FC = () => {
                 </div>
                 <span className="text-xs font-medium">Binance</span>
               </button>
-              
               <button
-                onClick={() => handleExchangeLogin('bybit')}
+                onClick={() => handleCryptoLogin('bybit')}
                 className={`flex flex-col items-center p-4 rounded-xl transition-all duration-200 ${
-                  isDarkMode 
-                    ? 'bg-gray-800 hover:bg-gray-700 border border-gray-600 text-white shadow-lg hover:shadow-xl' 
+                  isDarkMode
+                    ? 'bg-gray-800 hover:bg-gray-700 border border-gray-600 text-white shadow-lg hover:shadow-xl'
                     : 'bg-white hover:bg-gray-50 border border-gray-200 text-gray-900 shadow-lg hover:shadow-xl'
                 }`}
               >
@@ -143,12 +189,11 @@ const SignInPage: React.FC = () => {
                 </div>
                 <span className="text-xs font-medium">Bybit</span>
               </button>
-              
               <button
-                onClick={() => handleExchangeLogin('bingx')}
+                onClick={() => handleCryptoLogin('coinbase')}
                 className={`flex flex-col items-center p-4 rounded-xl transition-all duration-200 ${
-                  isDarkMode 
-                    ? 'bg-gray-800 hover:bg-gray-700 border border-gray-600 text-white shadow-lg hover:shadow-xl' 
+                  isDarkMode
+                    ? 'bg-gray-800 hover:bg-gray-700 border border-gray-600 text-white shadow-lg hover:shadow-xl'
                     : 'bg-white hover:bg-gray-50 border border-gray-200 text-gray-900 shadow-lg hover:shadow-xl'
                 }`}
               >
@@ -157,71 +202,90 @@ const SignInPage: React.FC = () => {
                     <path d="M12 2L2 7v10c0 5.55 3.84 9.74 9 11 5.16-1.26 9-5.45 9-11V7l-10-5z"/>
                   </svg>
                 </div>
-                <span className="text-xs font-medium">BingX</span>
+                <span className="text-xs font-medium">Coinbase</span>
               </button>
             </div>
           </div>
 
           {/* Divider */}
           <div className="relative mb-6">
-            <div className={`absolute inset-0 flex items-center ${
-              isDarkMode ? 'text-gray-600' : 'text-gray-400'
-            }`}>
-              <div className={`w-full border-t ${
-                isDarkMode ? 'border-gray-600' : 'border-gray-300'
-              }`} />
+            <div
+              className={`absolute inset-0 flex items-center ${
+                isDarkMode ? 'text-gray-600' : 'text-gray-400'
+              }`}
+            >
+              <div
+                className={`w-full border-t ${
+                  isDarkMode ? 'border-gray-600' : 'border-gray-300'
+                }`}
+              />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className={`px-2 ${
-                isDarkMode ? 'bg-gray-900 text-gray-400' : 'bg-white text-gray-500'
-              }`}>Or continue with email</span>
+              <span
+                className={`px-2 ${
+                  isDarkMode ? 'bg-gray-900 text-gray-400' : 'bg-white text-gray-500'
+                }`}
+              >
+                Or continue with email
+              </span>
             </div>
           </div>
 
           {/* Sign In Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className={`block text-sm font-medium mb-2 ${
-                isDarkMode ? 'text-gray-300' : 'text-gray-700'
-              }`}>
+              <label
+                className={`block text-sm font-medium mb-2 ${
+                  isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                }`}
+              >
                 Email Address
               </label>
               <div className="relative">
-                <Mail className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 ${
-                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                }`} />
+                <Mail
+                  className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 ${
+                    isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                  }`}
+                />
                 <input
                   type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  id="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
                   className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent ${
-                    isDarkMode 
-                      ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                    isDarkMode
+                      ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400'
                       : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
                   }`}
                   placeholder="Enter your email"
                   required
                 />
+                {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email}</p>}
               </div>
             </div>
 
             <div>
-              <label className={`block text-sm font-medium mb-2 ${
-                isDarkMode ? 'text-gray-300' : 'text-gray-700'
-              }`}>
+              <label
+                className={`block text-sm font-medium mb-2 ${
+                  isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                }`}
+              >
                 Password
               </label>
               <div className="relative">
-                <Lock className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 ${
-                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                }`} />
+                <Lock
+                  className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 ${
+                    isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                  }`}
+                />
                 <input
                   type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  id="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
                   className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent ${
-                    isDarkMode 
-                      ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                    isDarkMode
+                      ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400'
                       : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
                   }`}
                   placeholder="Enter your password"
@@ -236,6 +300,7 @@ const SignInPage: React.FC = () => {
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
+                {errors.password && <p className="text-red-400 text-xs mt-1">{errors.password}</p>}
               </div>
             </div>
 
@@ -247,55 +312,81 @@ const SignInPage: React.FC = () => {
                   onChange={(e) => setRememberMe(e.target.checked)}
                   className="w-4 h-4 text-sky-600 bg-gray-100 border-gray-300 rounded focus:ring-sky-500"
                 />
-                <span className={`ml-2 text-sm ${
-                  isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                }`}>Remember me</span>
+                <span
+                  className={`ml-2 text-sm ${
+                    isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                  }`}
+                >
+                  Remember me
+                </span>
               </label>
-              <Link 
-                to="/forgot-password" 
+              <Link
+                to="/forgot-password"
                 className="text-sm text-sky-600 hover:text-sky-500"
               >
                 Forgot password?
               </Link>
             </div>
 
-            {/* reCAPTCHA placeholder */}
-            <div className={`p-4 border rounded-lg ${
-              isDarkMode ? 'border-gray-600 bg-gray-800' : 'border-gray-300 bg-gray-50'
-            }`}>
+            {/* reCAPTCHA Placeholder */}
+            <div
+              className={`p-4 border rounded-lg ${
+                isDarkMode ? 'border-gray-600 bg-gray-800' : 'border-gray-300 bg-gray-50'
+              }`}
+            >
               <div className="flex items-center">
                 <input type="checkbox" className="mr-3" />
-                <span className={`text-sm ${
-                  isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                }`}>I'm not a robot</span>
+                <span
+                  className={`text-sm ${
+                    isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                  }`}
+                >
+                  I'm not a robot
+                </span>
                 <div className="ml-auto">
-                  <img src="https://www.gstatic.com/recaptcha/api2/logo_48.png" alt="reCAPTCHA" className="w-8 h-8" />
+                  <img
+                    src="https://www.gstatic.com/recaptcha/api2/logo_48.png"
+                    alt="reCAPTCHA"
+                    className="w-8 h-8"
+                  />
                 </div>
               </div>
             </div>
 
             <button
               type="submit"
-              className="w-full bg-sky-500 hover:bg-sky-600 text-white py-3 px-4 rounded-lg font-semibold transition-colors duration-200"
+              disabled={isLoading}
+              className="w-full bg-sky-500 hover:bg-sky-600 text-white py-3 px-4 rounded-lg font-semibold transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Sign In
+              {isLoading ? 'Signing In...' : 'Sign In'}
             </button>
           </form>
 
-          {/* Sign Up Link */}
-          <p className={`text-center mt-6 text-sm ${
-            isDarkMode ? 'text-gray-400' : 'text-gray-600'
-          }`}>
+          {/* Sign Up and Forgot Email Links */}
+          <p
+            className={`text-center mt-6 text-sm ${
+              isDarkMode ? 'text-gray-400' : 'text-gray-600'
+            }`}
+          >
             Don't have an account?{' '}
-            <Link to="/signup" className="text-sky-600 hover:text-sky-500 font-semibold">
-              Sign up
-            </Link>
+            {onSwitchToSignup ? (
+              <button
+                onClick={onSwitchToSignup}
+                className="text-sky-600 hover:text-sky-500 font-semibold"
+              >
+                Sign up
+              </button>
+            ) : (
+              <Link to="/signup" className="text-sky-600 hover:text-sky-500 font-semibold">
+                Sign up
+              </Link>
+            )}
           </p>
-
-          {/* Forgot Email Link */}
-          <p className={`text-center mt-2 text-sm ${
-            isDarkMode ? 'text-gray-400' : 'text-gray-600'
-          }`}>
+          <p
+            className={`text-center mt-2 text-sm ${
+              isDarkMode ? 'text-gray-400' : 'text-gray-600'
+            }`}
+          >
             <Link to="/forgot-email" className="text-sky-600 hover:text-sky-500">
               Forgot your email?
             </Link>
@@ -306,4 +397,4 @@ const SignInPage: React.FC = () => {
   );
 };
 
-export default SignInPage;
+export default EnhancedSigninForm;
